@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>從牙齒到心靈：口腔健康、生活品質與大腦情緒的科學對話</title>
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-surface: #131b2e;
+      --bg-card: #1c2742;
+      --border-color: #2b395b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-teal: #14b8a6;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-indigo: #6366f1;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Noto Sans TC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* 頂部進度條與資訊欄 */
+    header {
+      background: rgba(19, 27, 46, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--accent-cyan);
+    }
+
+    .brand-badge {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .slide-meta {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-teal), var(--accent-cyan));
+      width: 10%;
+      transition: width 0.35s ease;
+    }
+
+    /* 投影片主容器 */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px) scale(0.98);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.4s;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+    }
+
+    .slide-header {
+      margin-bottom: 24px;
+    }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-teal);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 900px;
+      line-height: 1.5;
+    }
+
+    /* 卡片與網格排版 */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 12px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+
+    .card-highlight {
+      border-color: rgba(20, 184, 166, 0.5);
+      background: linear-gradient(145deg, rgba(20, 184, 166, 0.08), rgba(19, 27, 46, 0.95));
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      margin: 12px 0;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* 流程骨牌樣式 (Slide 3) */
+    .domino-chain {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .domino-node {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .domino-node.active-step {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .domino-arrow {
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    /* 比較長條圖 (Slide 2) */
+    .bar-chart {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bar-label {
+      width: 180px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      transition: width 1s ease-out;
+    }
+
+    /* 底部控制欄 */
+    footer {
+      background: rgba(19, 27, 46, 0.9);
+      border-top: 1px solid var(--border-color);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent-teal);
+      color: #042f2e;
+      border-color: var(--accent-teal);
+    }
+
+    .btn-primary:hover {
+      background: #2dd4bf;
+      color: #042f2e;
+    }
+
+    .key-tip {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .key-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-family: monospace;
+    }
+
+    /* 引用標籤 */
+    .wiki-ref {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+      font-size: 0.78rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>🦷 大腦與口腔的跨域對話</span>
+      <span class="brand-badge">LLM Wiki 實證教學</span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="slide-meta">
+      <span id="slideCounter">Slide 1 / 10</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Slide 1: 封面 -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header">
+        <span class="slide-tag">INTRODUCTION • 破題導言</span>
+        <h1 class="slide-title">從牙齒到心靈</h1>
+        <p class="slide-subtitle">一口好牙，為何是大腦抵禦憂鬱與焦慮的堅強盾牌？</p>
+      </div>
+      <div class="grid-3">
+        <div class="card card-highlight">
+          <div class="card-title">💡 傳統直覺誤區</div>
+          <div class="card-desc">我們總認為牙痛只是一時的生理困擾，補好牙或忍過去就沒事，跟遠在顱骨裡的大腦心理毫無瓜葛。</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">🔬 前沿科學震撼</div>
+          <div class="card-desc">近年醫學大數據證實：牙齒與心理並非各自獨立！口腔疾病會透過神經、細菌與發炎訊號，全天候敲響大腦憂鬱警鐘。</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">📚 本簡報核心宗旨</div>
+          <div class="card-desc">依據維護於本機的「學術 LLM Wiki 知識庫」，以最通俗白話的節奏，拆解 6 篇權威期刊為我們揭露的真相。</div>
+        </div>
+      </div>
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="btn btn-primary" onclick="nextSlide()" style="padding: 12px 28px; font-size: 1rem; margin: auto;">開始探索科學旅程 ➔</button>
+      </div>
+    </div>
+
+    <!-- Slide 2: 國家大數據震撼 -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <span class="slide-tag">EPIDEMIOLOGY • 美國國家大數據揭密</span>
+        <h2 class="slide-title">牙痛只是小事？痛苦有驚人的「疊加效應」</h2>
+        <p class="slide-subtitle">美國 NHANES 調查 10,214 名成年人：口腔問題越多，臨床憂鬱症風險成倍飆升！</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📊 憂鬱症風險倍數 (Adjusted Odds Ratio)</div>
+          <div class="bar-chart">
+            <div class="bar-item">
+              <span class="bar-label">無口腔問題 (基準)</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 25%; background: #475569;">1.0 倍</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">2 項問題 (如牙痛+口臭)</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 40%; background: #06b6d4;">1.60 倍 (p=0.02)</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">4 項問題 (咬不動+難堪)</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 55%; background: #f59e0b;">2.13 倍 (p<0.001)</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">6 項問題 (多重困擾)</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 95%; background: #ef4444;">近 4.0 倍 (p<0.001)</div></div>
+            </div>
+          </div>
+          <div class="wiki-ref">📄 知識溯源：Wiki/papers/ONeil_2014_Dental_Health_Depression_NHANES.md</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">🔍 為何這項發現如此重要？</div>
+          <p class="card-desc">
+            在過去，精神科醫師很少過問病患的牙齒；牙醫師也不會關心病人的心情。<br><br>
+            O'Neil 團隊發現：<strong>控制了年齡、性別、甚至抽菸與全身發炎蛋白（CRP）後，這個倍數完全沒有縮水！</strong> 這代表不良口腔健康是引發憂鬱症的獨立且強大的潛在危險因子。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Locker 模型 -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <span class="slide-tag">THEORETICAL MODEL • 理論奠基</span>
+        <h2 class="slide-title">牙齒的骨牌效應：掉一顆牙如何摧毀生活？</h2>
+        <p class="slide-subtitle">1988 年 Locker 提出的劃時代模型：牙齒生病，是如何一步步滾雪球變成「社會不利」？</p>
+      </div>
+      <div class="domino-chain">
+        <div class="domino-node">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🦠</div>
+          <div style="font-weight: 700; color: #38bdf8;">1. 疾病 (Disease)</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">齲齒、嚴重牙周發炎</div>
+        </div>
+        <div class="domino-arrow">➔</div>
+        <div class="domino-node">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🦷</div>
+          <div style="font-weight: 700; color: #38bdf8;">2. 損傷 (Impairment)</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">牙齒剝落、缺牙、牙齦萎縮</div>
+        </div>
+        <div class="domino-arrow">➔</div>
+        <div class="domino-node">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">⚡</div>
+          <div style="font-weight: 700; color: #f59e0b;">3. 疼痛與限制</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">咬不動肉、說話漏風含糊</div>
+        </div>
+        <div class="domino-arrow">➔</div>
+        <div class="domino-node active-step">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">😔</div>
+          <div style="font-weight: 700; color: #f59e0b;">4. 生活失能</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">睡眠中斷、摀嘴笑不敢見人</div>
+        </div>
+        <div class="domino-arrow">➔</div>
+        <div class="domino-node" style="border-color: #ef4444; background: rgba(239,68,68,0.1);">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🚪</div>
+          <div style="font-weight: 700; color: #ef4444;">5. 社會障礙 (Handicap)</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">拒絕社交聚餐、面試受挫孤立</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 24px;">
+        <p class="card-desc">
+          💡 <strong>白話洞察：</strong> 掉牙本質上只是一塊鈣化組織的缺失，但真正傷人的是隨之而來的心理防線瓦解——自卑、尷尬、孤獨，最終將生理缺陷轉化為實質的人格自信崩壞。
+        </p>
+        <div class="wiki-ref">📄 知識溯源：Wiki/tools/Locker_Model.md 及 Wiki/concepts/Psychosocial_Pathway.md</div>
+      </div>
+    </div>
+
+    <!-- Slide 4: OHIP 量表 -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <span class="slide-tag">MEASUREMENT • 測量工具</span>
+        <h2 class="slide-title">如何為「嘴巴的不快樂」打分數？</h2>
+        <p class="slide-subtitle">1994 年 Slade & Spencer 研發的 OHIP 量表：將主觀痛苦標準化</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">🗣️ 1. 功能與進食障礙</div>
+          <p class="card-desc">
+            • 經常發音困難被別人誤解？<br>
+            • 為了假牙不合不得不放棄美食？<br>
+            • 吃飯變成一件漫長痛苦的差事？
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">💔 2. 心理不適與尷尬</div>
+          <p class="card-desc">
+            • 因自己的牙齒外貌感到極度自卑？<br>
+            • 拍照時永遠抿嘴、不敢露齒微笑？<br>
+            • 一想到要去看牙就充滿焦慮與緊繃？
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">👥 3. 人際互動衝擊</div>
+          <p class="card-desc">
+            • 因嘴巴不舒服而對伴侶發脾氣？<br>
+            • 刻意迴避朋友的聚餐與派對？<br>
+            • 工作時注意力無法集中、甚至請假？
+          </p>
+        </div>
+      </div>
+      <div class="card card-highlight" style="margin-top: 20px;">
+        <div class="card-desc">
+          🎯 <strong>科學貢獻：</strong> OHIP（尤其是 14 題簡化版 OHIP-14）讓全世界流行病學家有了通用標準。只要填寫問卷，就能清楚量化每個人口腔健康對生活品質（OHRQoL）折損的嚴重程度。
+        </div>
+        <div class="wiki-ref">📄 知識溯源：Wiki/tools/OHIP_Scale.md 及 Wiki/concepts/OHRQoL.md</div>
+      </div>
+    </div>
+
+    <!-- Slide 5: 社會流行病學 Chaffee 2017 -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <span class="slide-tag">SOCIAL CONTEXT • 社會流行病學</span>
+        <h2 class="slide-title">看不見的傷口：為什麼越貧困的人越不抱怨？</h2>
+        <p class="slide-subtitle">巴西 456 個家庭的研究：社會經濟地位（SES）引發的「適應性偏誤」</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🧐 反直覺的實證發現</div>
+          <p class="card-desc">
+            研究者原以為弱勢家庭生活更艱辛，評分生活品質受損一定更嚴重。然而數據顯示：<br><br>
+            在<strong>客觀齲齒顆數完全一樣多</strong>的狀況下：<br>
+            • <strong>低教育程度母親</strong>回報的負面衝擊比高學歷母親<strong>少了 30%</strong> (Ratio: 0.70)<br>
+            • <strong>低社會階層家庭</strong>回報的衝擊同樣<strong>少了 34%</strong> (Ratio: 0.66)
+          </p>
+          <div class="wiki-ref">📄 知識溯源：Wiki/papers/Chaffee_2017_SES_Caries_OHRQoL.md</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">⚖️ 為什麼會這樣？三個深層原因</div>
+          <p class="card-desc">
+            1. <strong>生存壓力優先序 (Competing Needs)</strong>：面對明天的房租與三餐，牙痛被無奈排到最末位。<br><br>
+            2. <strong>痛苦常態化 (Normalized Pain)</strong>：在貧困社區中，人人滿口蛀牙，讓家長誤以為「小孩子蛀牙本來就是必經過程」。<br><br>
+            3. <strong>公衛警訊</strong>：政府若只聽「民眾有沒有抱怨」來分配健保資源，將嚴重遺漏最需要幫助的沉默弱勢！
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: UK Biobank 長達 9 年世代追蹤 -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <span class="slide-tag">CAUSALITY • 前瞻性因果破譯</span>
+        <h2 class="slide-title">長達 9 年、追蹤 26 萬人的震撼結論</h2>
+        <p class="slide-subtitle">英國生物資料庫（UK Biobank）：牙周病確實是未來精神疾病的前置危險因子！</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-number">+19%</div>
+          <div class="stat-label">新發憂鬱症風險 (HR 1.19)</div>
+          <div class="card-desc" style="margin-top: 8px;">患有牙齦出血、疼痛或牙齒動搖者，經 9 年追蹤，由正式醫院病歷確診憂鬱症的風險顯著高出近 2 成。</div>
+        </div>
+        <div class="card">
+          <div class="stat-number">+13%</div>
+          <div class="stat-label">新發焦慮症風險 (HR 1.13)</div>
+          <div class="card-desc" style="margin-top: 8px;">尤其在女性受試者中更為顯著，口腔慢性刺激長期推升神經系統警戒狀態。</div>
+        </div>
+        <div class="card">
+          <div class="stat-number">+27%</div>
+          <div class="stat-label">憂鬱與焦慮共病風險 (HR 1.27)</div>
+          <div class="card-desc" style="margin-top: 8px;">當牙齒同時出現多重症狀（如牙周病+牙痛），兩種精神疾病同時爆發的共病風險飆升 27%。</div>
+        </div>
+      </div>
+      <div class="card card-highlight" style="margin-top: 20px;">
+        <div class="card-desc">
+          💡 <strong>打破「雞生蛋、蛋生雞」的因果迷霧：</strong> 過去常有人辯稱「是因為憂鬱症不想刷牙，才害牙齒壞掉」。UK Biobank 在一開始就剔除所有已有心理病史的人，長達 9 年的追蹤證實：<strong>是牙周病走在前面，引誘大腦走向憂鬱！</strong>
+        </div>
+        <div class="wiki-ref">📄 知識溯源：Wiki/papers/Wang_2024_Oral_Health_Depression_Anxiety_UKB.md</div>
+      </div>
+    </div>
+
+    <!-- Slide 7: 微生物組 Zhang 2025 -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <span class="slide-tag">MICROBIOME • 嘴巴裡的微觀宇宙</span>
+        <h2 class="slide-title">口腔細菌越單調，大腦越容易陷入憂鬱？</h2>
+        <p class="slide-subtitle">2025 年最新定序突破：口腔微生態豐富度（α 多樣性）是心理健康晴雨表</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🌿 「熱帶雨林 vs 單一農田」比喻</div>
+          <p class="card-desc">
+            • <strong>健康人的口腔（豐富雨林）</strong>：<br>
+            擁有上百種不同的共生菌（Observed ASV 中位數 128.8），彼此制衡，維持生態動態平衡。<br><br>
+            • <strong>重度憂鬱症患者的口腔（荒漠化農田）</strong>：<br>
+            細菌種類匱乏（ASV 中位數僅 119.3, p=0.007），良性菌失守，少數厭氧致病菌瘋狂肆虐。
+          </p>
+          <div class="wiki-ref">📄 知識溯源：Wiki/papers/Zhang_2025_Oral_Microbiome_Depression_NHANES.md</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">📈 令人驚奇的線性負相關</div>
+          <p class="card-desc">
+            全美 1,497 人基因定序證實：<br><br>
+            <strong>口腔菌種豐富度每增加 1 個單位，重度憂鬱症的發生機率就下降近 1% (OR = 0.992, p=0.003)。</strong><br><br>
+            未來也許只要吐一口漱口水檢測口腔微生物，就能及早預警個人的情緒風暴！
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: 口腦軸機制 -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <span class="slide-tag">MECHANISM • 生物奧秘</span>
+        <h2 class="slide-title">揭開「口腦軸」三大生化傳導通道</h2>
+        <p class="slide-subtitle">嘴巴發生的感染與失衡，究竟如何穿越層層屏障抵達中樞神經？</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">🩸 通道一：血管巡航與漏血腦屏障</div>
+          <p class="card-desc">
+            牙齦出血讓微血管破裂，致病菌產物（如牙齦蛋白酶 Gingipains）順著血液巡航，趁血腦屏障通透時滲入，活化腦內<strong>小膠質細胞</strong>引發神經發炎。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🧫 通道二：口-腸-腦軸間接傳遞</div>
+          <p class="card-desc">
+            人每天吞下 1.5 公升唾液與數十億細菌。口腔失調菌群轉移至腸道引發「腸漏」，促使色胺酸轉向生成具有神經毒性的<strong>犬尿氨酸</strong>，使血清素暴跌。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">⚡ 通道三：腦神經直通逆行</div>
+          <p class="card-desc">
+            三叉神經與迷走神經末梢密布於口腔組織。細菌或其神經毒素可沿著神經纖維逆行直達腦幹與下視丘，直接干擾情緒與壓力荷爾蒙調節。
+          </p>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-desc">
+          💡 <strong>科學冷知識：</strong> UK Biobank 中介分析發現，傳統驗血的「CRP 發炎蛋白」只能解釋約 3% 的風險。這意味著**另外 97% 的關鍵正是上述的神經直通、菌群移位與心理自尊剝奪**！
+        </div>
+        <div class="wiki-ref">📄 知識溯源：Wiki/concepts/Oral_Brain_Axis.md 及 Wiki/synthesis/Oral_Health_Mental_Wellbeing_Synthesis.md</div>
+      </div>
+    </div>
+
+    <!-- Slide 9: 日常行動倡議 -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <span class="slide-tag">ACTION PLAN • 日常實踐</span>
+        <h2 class="slide-title">刷牙，也是在守護你的心理健康</h2>
+        <p class="slide-subtitle">從「生物-心理-社會」落實四個立即可行的護心行動</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🪥 行動 1：不只刷牙，更要清齒縫</div>
+          <p class="card-desc">
+            牙縫是厭氧牙周菌（如 P. gingivalis）的大本營。每天至少使用一次牙線或齒間刷，中斷致病菌在微血管旁的慢性聚落。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🩺 行動 2：每半年定期專業洗牙</div>
+          <p class="card-desc">
+            牙結石是硬化的發炎溫床，日常刷牙無法去除。定期洗牙能清除深層發炎源頭，維持口腔菌群高多樣性穩態。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">💧 行動 3：警覺口乾與情緒警訊</div>
+          <p class="card-desc">
+            壓力大或服用抗憂鬱藥物常導致唾液驟減。多喝水、嚼無糖口香糖刺激唾液，因唾液中的抗菌胜肽是大腦的第一道防線。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🤝 行動 4：接納外觀，及早求助</div>
+          <p class="card-desc">
+            齒列不整或缺牙不必感到羞恥，更不要自我封閉。積極諮詢牙醫修復缺牙，能迅速逆轉社交孤立與自卑的惡性循環。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: 知識庫總覽與致謝 -->
+    <div class="slide" id="slide-10">
+      <div class="slide-header">
+        <span class="slide-tag">CONCLUSION • 知識庫總覽</span>
+        <h2 class="slide-title">LLM Wiki：知識複利的起點</h2>
+        <p class="slide-subtitle">感謝聆聽！本簡報之所有論點、統計數據與機制，均完整沉澱於本專案知識庫</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">📁 papers/ (6 篇精讀)</div>
+          <p class="card-desc">
+            • Locker (1988) 理論模型<br>
+            • Slade (1994) OHIP 量表<br>
+            • Chaffee (2017) 社會不平等<br>
+            • O'Neil (2014) NHANES 大數據<br>
+            • Wang (2024) UKB 9年世代<br>
+            • Zhang (2025) 微生物定序
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🧠 concepts/ & tools/</div>
+          <p class="card-desc">
+            • OHRQoL 生活品質概念<br>
+            • 口腦軸 (Oral-Brain Axis)<br>
+            • 口腔微生態失調 (Dysbiosis)<br>
+            • 心理社會路徑<br>
+            • Locker 模型與 OHIP 體系
+          </p>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-title">🚀 知識工程核心</div>
+          <p class="card-desc">
+            透過 Karpathy LLM Wiki 架構，我們不僅整理了分散的文獻，更打造了一個可持續演進、可供下游直接生成高品質教學內容的<strong>個人化學術大腦</strong>！
+          </p>
+        </div>
+      </div>
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="btn btn-primary" onclick="goToSlide(1)" style="padding: 10px 24px; font-size: 0.95rem;">重新播放簡報 ↺</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="key-tip">
+      <span>翻頁提示：鍵盤方向鍵</span>
+      <span class="key-badge">◀ 左</span>
+      <span class="key-badge">右 ▶</span>
+      <span>或使用空白鍵</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn" id="prevBtn" onclick="prevSlide()">◀ 上一頁</button>
+      <button class="btn" id="nextBtn" onclick="nextSlide()">下一頁 ▶</button>
+      <button class="btn" id="fullScreenBtn" onclick="toggleFullScreen()">全螢幕 ⛶</button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    function updateSlide() {
+      // 隱藏所有投影片
+      document.querySelectorAll('.slide').forEach(slide => {
+        slide.classList.remove('active');
+      });
+
+      // 啟動當前投影片
+      const activeSlide = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlide) {
+        activeSlide.classList.add('active');
+      }
+
+      // 更新進度條與計數器
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+      document.getElementById('slideCounter').innerText = `Slide ${currentSlide} / ${totalSlides}`;
+
+      // 按鈕狀態控制
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      updateSlide();
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`全螢幕請求失敗: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // 鍵盤監聽事件
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'Home') {
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        goToSlide(totalSlides);
+      }
+    });
+
+    // 初始化
+    updateSlide();
+  </script>
+</body>
+</html>
